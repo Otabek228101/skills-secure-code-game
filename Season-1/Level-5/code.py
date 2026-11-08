@@ -1,6 +1,4 @@
-import binascii
 import secrets
-import hashlib
 import os
 import bcrypt
 
@@ -19,24 +17,19 @@ class Random_generator:
 class SHA256_hasher:
 
     def password_hash(self, password, salt):
-        password = binascii.hexlify(hashlib.sha256(password.encode()).digest())
-        password_hash = bcrypt.hashpw(password, salt)
-        return password_hash.decode('ascii')
+        return bcrypt.hashpw(password.encode(), salt).decode('ascii')
 
     def password_verification(self, password, password_hash):
-        password = binascii.hexlify(hashlib.sha256(password.encode()).digest())
-        password_hash = password_hash.encode('ascii')
-        return bcrypt.checkpw(password, password_hash)
+        return bcrypt.checkpw(password.encode(), password_hash.encode('ascii'))
 
 class MD5_hasher:
 
     def password_hash(self, password):
-        return hashlib.md5(password.encode()).hexdigest()
+        return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode('ascii')
 
     def password_verification(self, password, password_hash):
-        password = self.password_hash(password)
-        return secrets.compare_digest(password.encode(), password_hash.encode())
-    
+        return bcrypt.checkpw(password.encode(), password_hash.encode('ascii'))
+
 PRIVATE_KEY = os.environ.get('PRIVATE_KEY')
 PUBLIC_KEY = os.environ.get('PUBLIC_KEY')
 SECRET_KEY = os.environ.get('SECRET_KEY')
