@@ -12,6 +12,7 @@ the tests.py again to recreate it.
 import sqlite3
 import os
 from flask import Flask, request
+import re
 
 ### Unrelated to the exercise -- Starts here -- Please ignore
 app = Flask(__name__)
@@ -133,16 +134,19 @@ class DB_CRUD_ops(object):
             cur = db_con.cursor()
 
             res = "[METHOD EXECUTED] get_stock_price\n"
-            query = "SELECT price FROM stocks WHERE symbol = '" + stock_symbol + "'"
-            res += "[QUERY] " + query + "\n"
-            if ';' in query:
-                res += "[SCRIPT EXECUTION]\n"
-                cur.executescript(query)
-            else:
-                cur.execute(query)
-                query_outcome = cur.fetchall()
-                for result in query_outcome:
-                    res += "[RESULT] " + str(result) + "\n"
+            # allow-list: тикер акции — только латинские буквы/цифры/точка
+            match = re.match(r"[A-Za-z0-9.]{1,10}", stock_symbol)
+            if not match:
+                return res + "[ERROR] invalid stock symbol\n"
+            stock_symbol = match.group(0)
+
+            # параметризованный запрос: ввод идёт как данные, а не как SQL
+            query = "SELECT price FROM stocks WHERE symbol = ?"
+            res += "[QUERY] " + query.replace("?", "'" + stock_symbol + "'") + "\n"
+            cur.execute(query, (stock_symbol,))
+            query_outcome = cur.fetchall()
+            for result in query_outcome:
+                res += "[RESULT] " + str(result) + "\n"
             return res
 
         except sqlite3.Error as e:
