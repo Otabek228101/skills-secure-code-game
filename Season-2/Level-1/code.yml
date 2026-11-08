@@ -1,11 +1,17 @@
-# Welcome to Secure Code Game Season-2/Level-1!
+name: CODE - Jarvis Gone Wrong
 
-# Follow the instructions below to get started:
+on:
+  push:
+    paths:
+      - ".github/workflows/jarvis-code.yml"
 
-# Due to the nature of GitHub Actions, please find this level's vulnerable code inside:
-# .github/workflows/jarvis-code.yml
-
-# That is by navigating to:
-#     .github/
-#             > workflows/
-#                         > jarvis-code.yml
+jobs:
+  jarvis:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check GitHub Status
+        run: |
+          STATUS=$(curl -s https://www.githubstatus.com/api/v2/status.json | jq -r '.status.description')
+          echo "GitHub Status: $STATUS"
