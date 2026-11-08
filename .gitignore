@@ -317,3 +317,6 @@ Module.symvers
 Mkfile.old
 dkms.conf.vite/
 .vite/
+Season-1/Level-2/hack
+Season-1/Level-2/tests
+*.db
